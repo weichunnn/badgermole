@@ -5,16 +5,19 @@ import { generateText } from "ai";
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 const model = groq("llama-3.2-11b-vision-preview");
 
-const PROMPT = `
+const QUERY_PROMPT = `You are a vision assistant for the visually impaired.
 
-You are a helper for visually impaired people.
+If the user asks a question, answer it in a single clear and concise sentence.
+Do not provide any additional context or unnecessary details.
 
-Please describe the image shown above. Be short and concise.
+Question: {{question}}`;
 
-Focus on the most important details and avoid unnecessary information.
+const WALKING_PROMPT = `You are a vision assistant for the visually impaired.
 
-Output should be 3 sentence long less than 30 words. Each line ends with a newline.
-`;
+Describe immediate hazards or obstacles in the path ahead.
+Focus exclusively on safety-critical elements that could affect walking.
+Be extremely brief and direct - mention only what could cause harm or block the path.
+ and direct. Do not provide unnecessary information.`;
 
 export async function POST(request: Request) {
   try {
@@ -37,7 +40,7 @@ export async function POST(request: Request) {
         {
           role: "user",
           content: [
-            { type: "text", text: PROMPT },
+            { type: "text", text: WALKING_PROMPT },
             { type: "image", image: imageUrl },
           ],
         },
