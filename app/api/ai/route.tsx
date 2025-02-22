@@ -5,11 +5,20 @@ import { generateText } from "ai";
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 const model = groq("llama-3.2-11b-vision-preview");
 
-const PROMPT = "What is in this image? Be short and concise.";
+const PROMPT = `
+
+You are a helper for visually impaired people.
+
+Please describe the image shown above. Be short and concise.
+
+Focus on the most important details and avoid unnecessary information.
+
+Output should be 3 sentence long less than 30 words. Each line ends with a newline.
+`;
+
 export async function POST(request: Request) {
   try {
-    // Get the image data from the request
-    const { image } = await request.json();
+    const { image, messages = [] } = await request.json();
 
     if (!image) {
       return NextResponse.json(
@@ -24,6 +33,7 @@ export async function POST(request: Request) {
     const { text } = await generateText({
       model,
       messages: [
+        ...messages,
         {
           role: "user",
           content: [
