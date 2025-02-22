@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Mic, Navigation2, Search } from 'lucide-react';
-import Layout from '@/components/layout';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Mic, Navigation2, Search } from "lucide-react";
+import Layout from "@/components/layout";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-type Mode = 'home' | 'query' | 'guide';
+type Mode = "home" | "query" | "guide";
 type Message = {
   role: string;
   content: string | Array<{ type: string; text?: string; image?: string }>;
@@ -15,11 +15,11 @@ type Message = {
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mode, setMode] = useState<Mode>('home');
+  const [mode, setMode] = useState<Mode>("home");
   const [isRecording, setIsRecording] = useState(false);
   const [isGuideRunning, setIsGuideRunning] = useState(false);
-  const [response, setResponse] = useState<string>('');
-  const guideIntervalRef = useRef<NodeJS.Timeout>();
+  const [response, setResponse] = useState<string>("");
+  const guideIntervalRef = useRef<NodeJS.Timeout>(null);
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function Home() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'environment',
+          facingMode: "environment",
           width: { ideal: 1280 },
           height: { ideal: 720 },
         },
@@ -49,8 +49,8 @@ export default function Home() {
         videoRef.current.srcObject = stream;
       }
     } catch (err) {
-      console.error('Error accessing camera:', err);
-      announceMessage('Camera access denied. Please enable camera access.');
+      console.error("Error accessing camera:", err);
+      announceMessage("Camera access denied. Please enable camera access.");
     }
   }
 
@@ -62,19 +62,19 @@ export default function Home() {
   async function captureAndAnalyze() {
     if (!videoRef.current || !isGuideRunning) return;
 
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     canvas.width = videoRef.current.videoWidth;
     canvas.height = videoRef.current.videoHeight;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
 
     if (ctx) {
       ctx.drawImage(videoRef.current, 0, 0);
-      const imageData = canvas.toDataURL('image/jpeg');
+      const imageData = canvas.toDataURL("image/jpeg");
 
       try {
-        const response = await fetch('/api/ai', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             image: imageData,
             messages: messages,
@@ -88,7 +88,7 @@ export default function Home() {
           announceMessage(data.description);
         }
       } catch (err) {
-        console.error('Error analyzing image:', err);
+        console.error("Error analyzing image:", err);
       }
     }
   }
@@ -108,47 +108,47 @@ export default function Home() {
   const handleRecordToggle = async () => {
     setIsRecording(!isRecording);
     if (!isRecording) {
-      announceMessage('Recording has started');
-      setResponse('Listening...');
+      announceMessage("Recording has started");
+      setResponse("Listening...");
       // Here you would typically start recording and send to speech-to-text
       // Then send the text to your AI endpoint
       await captureAndAnalyze(); // Single analysis for query mode
     } else {
-      announceMessage('Recording stopped');
+      announceMessage("Recording stopped");
     }
   };
 
   const startGuideMode = () => {
-    setMode('guide');
+    setMode("guide");
     setIsGuideRunning(true);
-    announceMessage('Guide mode activated. I will describe your surroundings.');
+    announceMessage("Guide mode activated. I will describe your surroundings.");
     captureAndAnalyze(); // Initial analysis
   };
 
   const toggleGuide = () => {
     setIsGuideRunning(!isGuideRunning);
     if (isGuideRunning) {
-      announceMessage('Guide paused. Click again to resume.');
-      setResponse('Guide mode paused');
+      announceMessage("Guide paused. Click again to resume.");
+      setResponse("Guide mode paused");
       if (guideIntervalRef.current) {
         clearInterval(guideIntervalRef.current);
       }
     } else {
-      announceMessage('Guide resumed');
-      setResponse('Resuming environment description...');
+      announceMessage("Guide resumed");
+      setResponse("Resuming environment description...");
       captureAndAnalyze(); // Immediate analysis on resume
     }
   };
 
   const handleBack = () => {
-    setMode('home');
+    setMode("home");
     setIsRecording(false);
     setIsGuideRunning(false);
-    setResponse('');
+    setResponse("");
     if (guideIntervalRef.current) {
       clearInterval(guideIntervalRef.current);
     }
-    announceMessage('Returned to home screen');
+    announceMessage("Returned to home screen");
   };
 
   return (
@@ -183,10 +183,10 @@ export default function Home() {
 
         {/* Control Buttons */}
         <div className="grid gap-4 p-4 bg-gray-950">
-          {mode === 'home' && (
+          {mode === "home" && (
             <div className="grid grid-cols-2 gap-4">
               <Button
-                onClick={() => setMode('query')}
+                onClick={() => setMode("query")}
                 className="h-20 text-lg flex flex-col items-center gap-2 bg-purple-900 hover:bg-purple-800"
                 aria-label="Query Mode"
               >
@@ -205,7 +205,7 @@ export default function Home() {
             </div>
           )}
 
-          {(mode === 'query' || mode === 'guide') && (
+          {(mode === "query" || mode === "guide") && (
             <div className="grid grid-cols-2 gap-4">
               <Button
                 onClick={handleBack}
@@ -217,41 +217,41 @@ export default function Home() {
               </Button>
 
               <Button
-                onClick={mode === 'query' ? handleRecordToggle : toggleGuide}
+                onClick={mode === "query" ? handleRecordToggle : toggleGuide}
                 className={cn(
-                  'h-20 text-lg flex flex-col items-center gap-2',
-                  mode === 'query'
+                  "h-20 text-lg flex flex-col items-center gap-2",
+                  mode === "query"
                     ? isRecording
-                      ? 'bg-red-600 hover:bg-red-700'
-                      : 'bg-green-700 hover:bg-green-600'
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-green-700 hover:bg-green-600"
                     : isGuideRunning
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-green-700 hover:bg-green-600'
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-green-700 hover:bg-green-600"
                 )}
                 aria-label={
-                  mode === 'query'
+                  mode === "query"
                     ? isRecording
-                      ? 'Stop Recording'
-                      : 'Start Recording'
+                      ? "Stop Recording"
+                      : "Start Recording"
                     : isGuideRunning
-                    ? 'Pause Guide'
-                    : 'Resume Guide'
+                    ? "Pause Guide"
+                    : "Resume Guide"
                 }
               >
                 <Mic
                   className={cn(
-                    'w-8 h-8',
-                    (isRecording || isGuideRunning) && 'animate-pulse'
+                    "w-8 h-8",
+                    (isRecording || isGuideRunning) && "animate-pulse"
                   )}
                 />
                 <span className="font-medium">
-                  {mode === 'query'
+                  {mode === "query"
                     ? isRecording
-                      ? 'Stop'
-                      : 'Record'
+                      ? "Stop"
+                      : "Record"
                     : isGuideRunning
-                    ? 'Pause'
-                    : 'Resume'}
+                    ? "Pause"
+                    : "Resume"}
                 </span>
               </Button>
             </div>

@@ -5,6 +5,11 @@ import { generateText } from "ai";
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 const model = groq("llama-3.2-11b-vision-preview");
 
+enum MODE {
+  QUERY = "query",
+  WALKING = "walking",
+}
+
 const QUERY_PROMPT = `You are a vision assistant for the visually impaired.
 
 If the user asks a question, answer it in a single clear and concise sentence.
@@ -21,7 +26,7 @@ Be extremely brief and direct - mention only what could cause harm or block the 
 
 export async function POST(request: Request) {
   try {
-    const { image, messages = [] } = await request.json();
+    const { image, messages = [], type = MODE.WALKING } = await request.json();
 
     if (!image) {
       return NextResponse.json(
@@ -40,7 +45,10 @@ export async function POST(request: Request) {
         {
           role: "user",
           content: [
-            { type: "text", text: WALKING_PROMPT },
+            {
+              type: "text",
+              text: type == MODE.WALKING ? WALKING_PROMPT : QUERY_PROMPT,
+            },
             { type: "image", image: imageUrl },
           ],
         },
