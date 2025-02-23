@@ -1,10 +1,10 @@
-import { createGroq } from "@ai-sdk/groq";
-import { NextRequest, NextResponse } from "next/server";
-import { CategoryProcessor } from "../../../stuf/my-app/components/categoryHandler";
-import { generateText } from "ai";
+import { createGroq } from '@ai-sdk/groq';
+import { NextRequest, NextResponse } from 'next/server';
+//import { CategoryProcessor } from "../../../stuf/my-app/components/categoryHandler";
+import { generateText } from 'ai';
 
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
-const model = groq("llama3-8b-8192");
+const model = groq('llama3-8b-8192');
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,20 +35,20 @@ export async function POST(req: NextRequest) {
     // Create a standardized response object
     const response = {
       category: text.trim(), // Will be one of: "Describe", "Navigate", or "Search"
-      isAction: text.trim() === "Navigate" || text.trim() === "Search", // Navigation and Search are considered actions
+      isAction: text.trim() === 'Navigate' || text.trim() === 'Search', // Navigation and Search are considered actions
       confidence: 0.9, // Default confidence level
       processedText: inputPrompt, // Original input for display purposes
       destination:
-        text.trim() === "Navigate"
-          ? inputPrompt.replace(/^.*?to\s+/i, "")
+        text.trim() === 'Navigate'
+          ? inputPrompt.replace(/^.*?to\s+/i, '')
           : undefined, // Extract destination for navigation requests
     };
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Classification error:", error);
+    console.error('Classification error:', error);
     return NextResponse.json(
-      { error: "Failed to process request" },
+      { error: 'Failed to process request' },
       { status: 500 }
     );
   }

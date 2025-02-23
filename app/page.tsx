@@ -1,31 +1,31 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import Layout from "@/components/layout";
-import { CameraView } from "@/components/Camera/CameraView";
-import { HomeControls } from "@/components/Controls/HomeControls";
-import { ModeControls } from "@/components/Controls/ModeControls";
-import { useCamera } from "@/app/hooks/useCamera";
-import { useImageAnalysis } from "@/app/hooks/useImageAnalysis";
-import { Mode } from "./types";
-import { useAudioRecording } from "./hooks/useAudioRecording";
-import { isCurrentlySpeaking } from "@/lib/elevenlabs-service";
+import { useEffect, useRef, useState } from 'react';
+import Layout from '@/components/layout';
+import { CameraView } from '@/components/Camera/CameraView';
+import { HomeControls } from '@/components/Controls/HomeControls';
+import { ModeControls } from '@/components/Controls/ModeControls';
+import { useCamera } from '@/app/hooks/useCamera';
+import { useImageAnalysis } from '@/app/hooks/useImageAnalysis';
+import { Mode } from './types';
+import { useAudioRecording } from './hooks/useAudioRecording';
+import { isCurrentlySpeaking } from '@/lib/elevenlabs-service';
 
 export default function Home() {
   const { videoRef, canvasRef, announceMessage } = useCamera();
 
-  const [mode, setMode] = useState<Mode>("home");
+  const [mode, setMode] = useState<Mode>('home');
   const [isGuideRunning, setIsGuideRunning] = useState(false);
   const guideIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [transcription, setTranscription] = useState<string>("");
+  const [transcription, setTranscription] = useState<string>('');
 
-  enum IntentResponse {
-    Describe = "Describe",
-    Navigate = "Navigate",
-    Search = "Search",
-  }
+  //enum IntentResponse {
+  //  Describe = 'Describe',
+  //  Navigate = 'Navigate',
+  //  Search = 'Search',
+  //}
 
-  const [currentLocation, setCurrentLocation] = useState<string>("");
+  //const [currentLocation, setCurrentLocation] = useState<string>('');
   const { response, setResponse, captureAndAnalyze } = useImageAnalysis(
     videoRef as React.RefObject<HTMLVideoElement>,
     transcription
@@ -36,113 +36,119 @@ export default function Home() {
       setTranscription(text);
       setResponse(text);
 
-      try {
-        const intResp = await fetch("/api/classify_intent", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ inputPrompt: text }), // Changed from text to inputPrompt
-        });
-        if (!intResp.ok) {
-          throw new Error("Failed to process intent");
-        }
-        const intRespFinal = await intResp.json();
+      console.log('Transcription:', text);
+      console.log('analyzing image');
+      captureAndAnalyze(text);
 
-        console.log("Intent response:", intRespFinal);
+      //try {
+      //  const intResp = await fetch('/api/classify_intent', {
+      //    method: 'POST',
+      //    headers: {
+      //      'Content-Type': 'application/json',
+      //    },
+      //    body: JSON.stringify({ inputPrompt: text }), // Changed from text to inputPrompt
+      //  });
+      //  if (!intResp.ok) {
+      //    throw new Error('Failed to process intent');
+      //  }
+      //  const intRespFinal = await intResp.json();
 
-        switch (intRespFinal.category) {
-          case IntentResponse.Describe:
-            announceMessage(
-              "Processing your request to describe the surroundings"
-            );
-            const describeResponse = await captureAndAnalyze();
-            announceMessage(describeResponse);
-            break;
+      //  console.log('Intent response:', intRespFinal);
 
-          case IntentResponse.Navigate:
-            announceMessage("Finding navigation directions");
-            let address = null;
-            // if ("geolocation" in navigator) {
-            //   navigator.geolocation.getCurrentPosition(
-            //     async (position) => {
-            //       try {
-            //         const response = await fetch(`/api/reverse_geocode`, {
-            //           method: "POST",
-            //           headers: {
-            //             "Content-Type": "application/json",
-            //           },
-            //           body: JSON.stringify({
-            //             lat: position.coords.latitude,
-            //             lng: position.coords.longitude,
-            //           }),
-            //         });
-            //         address = await response.json();
-            //       } catch (error) {
-            //         console.error("Error getting street address:", error);
-            //       }
-            //     },
-            //     (error) => {
-            //       console.error("Error getting location:", error);
-            //     }
-            //   );
-            // }
-            const navResp = await fetch("/api/ai/maps", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                origin: "55 2nd Street, San Francisco, CA 94105",
-                destination: "425 Mission Street, San Francisco, CA 94105", // Salesforce Transit Center
-                transitType: "DRIVE",
-              }),
-            });
-            const navigationData = await navResp.json();
-            announceMessage("Navigation route found");
+      //  switch (intRespFinal.category) {
+      //    case IntentResponse.Describe:
+      //      announceMessage(
+      //        'Processing your request to describe the surroundings'
+      //      );
+      //      const describeResponse = await captureAndAnalyze();
+      //      announceMessage(describeResponse);
+      //      break;
 
-            announceMessage(navigationData.directions);
-            break;
+      //    case IntentResponse.Navigate:
+      //      announceMessage('Finding navigation directions');
+      //      const address = null;
+      //      // if ("geolocation" in navigator) {
+      //      //   navigator.geolocation.getCurrentPosition(
+      //      //     async (position) => {
+      //      //       try {
+      //      //         const response = await fetch(`/api/reverse_geocode`, {
+      //      //           method: "POST",
+      //      //           headers: {
+      //      //             "Content-Type": "application/json",
+      //      //           },
+      //      //           body: JSON.stringify({
+      //      //             lat: position.coords.latitude,
+      //      //             lng: position.coords.longitude,
+      //      //           }),
+      //      //         });
+      //      //         address = await response.json();
+      //      //       } catch (error) {
+      //      //         console.error("Error getting street address:", error);
+      //      //       }
+      //      //     },
+      //      //     (error) => {
+      //      //       console.error("Error getting location:", error);
+      //      //     }
+      //      //   );
+      //      // }
+      //      const navResp = await fetch('/api/ai/maps', {
+      //        method: 'POST',
+      //        headers: {
+      //          'Content-Type': 'application/json',
+      //        },
+      //        body: JSON.stringify({
+      //          origin: '55 2nd Street, San Francisco, CA 94105',
+      //          destination: '425 Mission Street, San Francisco, CA 94105', // Salesforce Transit Center
+      //          transitType: 'DRIVE',
+      //        }),
+      //      });
+      //      const navigationData = await navResp.json();
+      //      announceMessage('Navigation route found');
 
-          case IntentResponse.Search:
-            announceMessage("Searching for your request");
-            const searchResp = await fetch("/api/ai/search", {
-              method: "POST",
-              headers: {
-                "Content-Type": "appli cation/json",
-              },
-              body: JSON.stringify({
-                query: text,
-              }),
-            });
-            console.log("Search response:", searchResp);
-            const searchData = await searchResp.json();
-            console.log("Search data:", searchData.answer);
+      //      announceMessage(navigationData.directions);
+      //      break;
 
-            announceMessage("search data found");
-            announceMessage(searchData.answer);
+      //    case IntentResponse.Search:
+      //      announceMessage('Searching for your request');
 
-            break;
+      //      const searchResp = await fetch('/api/ai/search', {
+      //        method: 'POST',
+      //        headers: {
+      //          'Content-Type': 'appli cation/json',
+      //        },
+      //        body: JSON.stringify({
+      //          query: text,
+      //          image: image,
+      //        }),
+      //      });
+      //      console.log('Search response:', searchResp);
+      //      const searchData = await searchResp.json();
+      //      console.log('Search data:', searchData.answer);
 
-          default:
-            announceMessage("Intent not recognized. Please try again.");
-            break;
-        }
-      } catch (error) {
-        console.error("Intent processing error:", error);
-        announceMessage("Error processing your request. Please try again.");
-      }
+      //      announceMessage('search data found');
+      //      announceMessage(searchData.answer);
+
+      //      break;
+
+      //    default:
+      //      announceMessage('Intent not recognized. Please try again.');
+      //      break;
+      //  }
+      //} catch (error) {
+      //  console.error('Intent processing error:', error);
+      //  announceMessage('Error processing your request. Please try again.');
+      //}
     },
     onError: (error) => {
-      console.error("Transcription error:", error);
-      announceMessage("Error with transcription. Please try again.");
-      setTranscription("");
+      console.error('Transcription error:', error);
+      announceMessage('Error with transcription. Please try again.');
+      setTranscription('');
     },
   });
 
   useEffect(() => {
     announceMessage("Hello there! Let's get started!!");
-  }, []);
+  }, [announceMessage]);
 
   useEffect(() => {
     if (isGuideRunning) {
@@ -157,13 +163,13 @@ export default function Home() {
   }, [isGuideRunning, captureAndAnalyze]);
 
   const handleQueryMode = () => {
-    setMode("query");
-    announceMessage("Query mode.");
-    setResponse("");
+    setMode('query');
+    announceMessage('Query mode.');
+    setResponse('');
   };
 
   const startGuideMode = () => {
-    setMode("guide");
+    setMode('guide');
     setIsGuideRunning(true);
     announceMessage("Guide mode. I'll describe your surroundings.");
     captureAndAnalyze();
@@ -172,14 +178,14 @@ export default function Home() {
   const toggleGuide = () => {
     setIsGuideRunning(!isGuideRunning);
     if (isGuideRunning) {
-      announceMessage("Guide paused. Click again to resume.");
-      setResponse("Guide mode paused");
+      announceMessage('Guide paused. Click again to resume.');
+      setResponse('Guide mode paused');
       if (guideIntervalRef.current) {
         clearInterval(guideIntervalRef.current);
       }
     } else {
-      announceMessage("Guide resumed");
-      setResponse("Resuming environment description...");
+      announceMessage('Guide resumed');
+      setResponse('Resuming environment description...');
       captureAndAnalyze();
     }
   };
@@ -187,23 +193,23 @@ export default function Home() {
   const handleRecordToggle = async () => {
     if (!isRecording) {
       if (isCurrentlySpeaking()) {
-        announceMessage("Please wait for the current response to finish");
+        announceMessage('Please wait for the current response to finish');
         return;
       }
       try {
-        announceMessage("Recording has started");
-        setResponse("Listening...");
-        setTranscription("");
+        announceMessage('Recording has started');
+        setResponse('Listening...');
+        setTranscription('');
         await startRecording();
       } catch (error) {
-        console.error("Failed to start recording:", error);
+        console.error('Failed to start recording:', error);
         announceMessage(
-          "Failed to start recording. Please check microphone permissions."
+          'Failed to start recording. Please check microphone permissions.'
         );
       }
     } else {
       stopRecording();
-      announceMessage("Recording stopped");
+      announceMessage('Recording stopped');
     }
   };
 
@@ -212,13 +218,13 @@ export default function Home() {
       stopRecording();
     }
     setIsGuideRunning(false);
-    setTranscription("");
-    setResponse("");
-    setMode("home");
+    setTranscription('');
+    setResponse('');
+    setMode('home');
     if (guideIntervalRef.current) {
       clearInterval(guideIntervalRef.current);
     }
-    announceMessage("Home Screen");
+    announceMessage('Home Screen');
   };
 
   return (
@@ -234,19 +240,19 @@ export default function Home() {
         />
 
         <div className="grid gap-4 p-4 bg-gray-950">
-          {mode === "home" ? (
+          {mode === 'home' ? (
             <HomeControls
               onQueryClick={handleQueryMode}
               onGuideClick={startGuideMode}
             />
           ) : (
             <ModeControls
-              mode={mode as "query" | "guide"}
+              mode={mode as 'query' | 'guide'}
               isRecording={isRecording}
               isGuideRunning={isGuideRunning}
               onBack={handleBack}
-              onToggle={mode === "query" ? handleRecordToggle : toggleGuide}
-              instructions={mode === "query" ? "" : undefined}
+              onToggle={mode === 'query' ? handleRecordToggle : toggleGuide}
+              instructions={mode === 'query' ? '' : undefined}
               transcription={transcription}
             />
           )}

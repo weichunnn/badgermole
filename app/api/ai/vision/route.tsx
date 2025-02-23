@@ -6,7 +6,7 @@ import { z } from 'zod';
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 const model = groq('llama-3.2-90b-vision-preview');
 
-const WALKING_PROMPT = `Analyze the image for hazards. Return JSON in this format:
+const WALKING_PROMPT = `Analyze the image for hazards. People are safe. Return JSON in this format:
 {
   "hazard": "" // empty string if safe, or brief hazard description (max 10 words)
 }
