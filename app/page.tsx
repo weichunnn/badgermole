@@ -9,7 +9,7 @@ import { useCamera } from '@/app/hooks/useCamera';
 import { useImageAnalysis } from '@/app/hooks/useImageAnalysis';
 import { Mode } from './types';
 import { useAudioRecording } from './hooks/useAudioRecording';
-import { isCurrentlySpeaking } from '@/lib/elevenlabs-service';
+import { isCurrentlySpeaking, stopSpeaking } from '@/lib/elevenlabs-service';
 
 export default function Home() {
   const { videoRef, canvasRef, announceMessage } = useCamera();
@@ -163,19 +163,24 @@ export default function Home() {
   }, [isGuideRunning, captureAndAnalyze]);
 
   const handleQueryMode = () => {
+    stopSpeaking();
     setMode('query');
     announceMessage('Query mode.');
     setResponse('');
   };
 
   const startGuideMode = () => {
+    stopSpeaking();
+
     setMode('guide');
     setIsGuideRunning(true);
-    announceMessage("Guide mode. I'll describe your surroundings.");
+    announceMessage('Guide mode. Start walking.');
     captureAndAnalyze();
   };
 
   const toggleGuide = () => {
+    stopSpeaking();
+
     setIsGuideRunning(!isGuideRunning);
     if (isGuideRunning) {
       announceMessage('Guide paused. Click again to resume.');
@@ -214,6 +219,8 @@ export default function Home() {
   };
 
   const handleBack = () => {
+    stopSpeaking();
+
     if (isRecording) {
       stopRecording();
     }
