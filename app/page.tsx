@@ -148,7 +148,7 @@ export default function Home() {
 
   useEffect(() => {
     announceMessage("Hello there! Let's get started!!");
-  }, [announceMessage]);
+  }, []);
 
   useEffect(() => {
     if (isGuideRunning) {
