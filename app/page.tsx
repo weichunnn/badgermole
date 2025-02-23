@@ -72,7 +72,7 @@ export default function Home() {
       const imageData = canvas.toDataURL("image/jpeg");
 
       try {
-        const response = await fetch("/api/ai", {
+        const response = await fetch("/api/ai/vision", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
