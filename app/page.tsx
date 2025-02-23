@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -10,18 +8,31 @@ import { ModeControls } from '@/components/Controls/ModeControls';
 import { useCamera } from '@/app/hooks/useCamera';
 import { useImageAnalysis } from '@/app/hooks/useImageAnalysis';
 import { Mode } from './types';
+import { useAudioRecording } from './hooks/useAudioRecording';
 
 export default function Home() {
   const { videoRef, canvasRef, announceMessage } = useCamera();
-  const { response, setResponse, messages, captureAndAnalyze } =
-    useImageAnalysis(videoRef as React.RefObject<HTMLVideoElement>);
+  const { response, setResponse, captureAndAnalyze } = useImageAnalysis(
+    videoRef as React.RefObject<HTMLVideoElement>
+  );
 
   const [mode, setMode] = useState<Mode>('home');
-  const [isRecording, setIsRecording] = useState(false);
   const [isGuideRunning, setIsGuideRunning] = useState(false);
   const guideIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [transcription, setTranscription] = useState<string>('');
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  const { isRecording, startRecording, stopRecording } = useAudioRecording({
+    onTranscriptionComplete: async (text) => {
+      setTranscription(text);
+      setResponse(text);
+      await captureAndAnalyze();
+    },
+    onError: (error) => {
+      console.error('Transcription error:', error);
+      announceMessage('Error with transcription. Please try again.');
+      setTranscription('');
+    },
+  });
 
   useEffect(() => {
     announceMessage(
@@ -71,55 +82,29 @@ export default function Home() {
     }
   };
 
-  //// Initialize AssemblyAI hook
-  //const { startRecording, stopRecording } = useAssemblyAI({
-  //  onPartialTranscript: (text) => {
-  //    setTranscription(`Transcribing: ${text}`);
-  //    setResponse(`Transcribing: ${text}`);
-  //  },
-  //  onFinalTranscript: async (text) => {
-  //    setTranscription(text);
-  //    setResponse(text);
-  //    await captureAndAnalyze();
-  //  },
-  //  onError: (error) => {
-  //    console.error('Transcription error:', error);
-  //    announceMessage('Error with transcription. Please try again.');
-  //    setTranscription('');
-  //    setIsRecording(false);
-  //  },
-  //});
-
-  // Update handleRecordToggle to use the new AssemblyAI hook
   const handleRecordToggle = async () => {
     if (!isRecording) {
       try {
         announceMessage('Recording has started');
         setResponse('Listening...');
-        setTranscription(''); // Clear previous transcription
-        //await startRecording();
-        setIsRecording(true);
+        setTranscription('');
+        await startRecording();
       } catch (error) {
         console.error('Failed to start recording:', error);
         announceMessage(
           'Failed to start recording. Please check microphone permissions.'
         );
-        setIsRecording(false);
       }
     } else {
-      //await stopRecording();
-      setIsRecording(false);
+      stopRecording();
       announceMessage('Recording stopped');
     }
   };
 
   const handleBack = () => {
-    // Stop any ongoing recording when going back
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current = null;
+    if (isRecording) {
+      stopRecording();
     }
-    setIsRecording(false);
     setIsGuideRunning(false);
     setTranscription('');
     setResponse('');

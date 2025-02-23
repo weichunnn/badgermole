@@ -11,7 +11,7 @@ export function HomeControls({
   onGuideClick,
 }: HomeControlsProps) {
   return (
-    <div className="flex justify-between gap-6 max-w-4xl mx-auto w-full px-4">
+    <div className="flex justify-between gap-4 mx-auto w-full px-2">
       <Button
         onClick={onQueryClick}
         className="flex-1 h-32 text-2xl flex flex-col items-center gap-4 bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 transition-all duration-300 shadow-xl hover:shadow-indigo-500/30 border border-indigo-400/30 rounded-2xl transform hover:scale-[1.02]"

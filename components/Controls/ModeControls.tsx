@@ -22,15 +22,14 @@ export function ModeControls({
   transcription,
 }: ModeControlsProps) {
   return (
-    <div className="flex flex-col gap-4 max-w-4xl mx-auto w-full">
+    <div className="flex flex-col gap-4 mx-auto w-full">
       {instructions && (
-        <div className="text-center text-gray-300 text-lg font-medium px-4">
+        <div className="text-center text-gray-300 text-lg font-medium px-2">
           {instructions}
         </div>
       )}
-      {/* Updated transcription display with better styling */}
       {transcription && (
-        <div className="text-center bg-gray-800/50 rounded-lg p-4 mx-4">
+        <div className="text-center bg-gray-800/50 rounded-lg p-4 mx-2">
           <p className="text-emerald-400 text-lg font-medium break-words">
             {transcription}
           </p>
@@ -40,8 +39,8 @@ export function ModeControls({
             </div>
           )}
         </div>
-      )}{' '}
-      <div className="flex justify-between gap-6 px-4">
+      )}
+      <div className="flex justify-between gap-4 px-2">
         <Button
           onClick={onBack}
           className="flex-1 h-32 text-2xl flex flex-col items-center gap-4 bg-gradient-to-br from-slate-600 to-slate-800 hover:from-slate-700 hover:to-slate-900 transition-all duration-300 shadow-xl hover:shadow-slate-500/30 border border-slate-400/30 rounded-2xl transform hover:scale-[1.02]"
