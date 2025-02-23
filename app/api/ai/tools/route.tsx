@@ -8,6 +8,7 @@ import { pull } from "langchain/hub";
 import type { ChatPromptTemplate } from "@langchain/core/prompts";
 import { DuckDuckGoSearch } from "@langchain/community/tools/duckduckgo_search";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let agentExecutor: any = null;
 
 const createSearchAndRoutesAgent = async () => {
