@@ -53,11 +53,11 @@ export const synthesizeSpeech = async (text: string): Promise<void> => {
       isSpeaking = true;
 
       const audioStream = await client.textToSpeech.convertAsStream(
-        'XfNU2rGpBa01ckF309OY', // nichalia schwartz
+        process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || 'XfNU2rGpBa01ckF309OY', // nichalia schwartz
         {
           text,
           // Using Multilingual v2 for better emotional expression
-          model_id: 'eleven_multilingual_v2',
+          model_id: 'eleven_flash_v2_5',
           // Higher quality audio settings
           output_format: 'mp3_44100_128',
           // Voice settings for a warmer, more natural sound

@@ -15,14 +15,18 @@ const QUERY_PROMPT = `You are a vision assistant for the visually impaired.
 If the user asks a question, answer it in a single clear and concise sentence.
 Do not provide any additional context or unnecessary details.
 
-Question: {{question}}`;
+Question: {{userQuery}}`;
 
 const WALKING_PROMPT = `Give me a description of this image. Include full details on items, what's written and important information that would help describe this to a blind person. Make sure to keep track of the location of everything and include context clues so that I can understand everything in this image without seeing it visually through the text description`;
 
 export async function POST(request: Request) {
   try {
-    const { image, messages = [], type = MODE.WALKING } = await request.json();
-
+    const { image, messages = [], type = MODE.QUERY, userQuery = '' } = await request.json();
+    console.log('Vision Input:', {
+      type,
+      userQuery,
+      messageCount: messages.length
+    });
     if (!image) {
       return NextResponse.json(
         { error: 'Image data is required' },
@@ -42,12 +46,17 @@ export async function POST(request: Request) {
           content: [
             {
               type: 'text',
-              text: type == MODE.WALKING ? WALKING_PROMPT : QUERY_PROMPT,
+              text: type == MODE.WALKING ? WALKING_PROMPT : QUERY_PROMPT.replace('{{userQuery}}', userQuery),
             },
             { type: 'image', image: imageUrl },
           ],
         },
       ],
+    });
+
+    console.log('Vision Output:', {
+      text,
+      type
     });
 
     // Return the description

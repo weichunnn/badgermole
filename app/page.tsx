@@ -9,23 +9,26 @@ import { useCamera } from '@/app/hooks/useCamera';
 import { useImageAnalysis } from '@/app/hooks/useImageAnalysis';
 import { Mode } from './types';
 import { useAudioRecording } from './hooks/useAudioRecording';
+import { isCurrentlySpeaking } from '@/lib/elevenlabs-service'; // Add this import
+
 
 export default function Home() {
   const { videoRef, canvasRef, announceMessage } = useCamera();
-  const { response, setResponse, captureAndAnalyze } = useImageAnalysis(
-    videoRef as React.RefObject<HTMLVideoElement>
-  );
 
   const [mode, setMode] = useState<Mode>('home');
   const [isGuideRunning, setIsGuideRunning] = useState(false);
   const guideIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [transcription, setTranscription] = useState<string>('');
+  const { response, setResponse, captureAndAnalyze, isProcessing } = useImageAnalysis(
+    videoRef as React.RefObject<HTMLVideoElement>,
+    transcription
+  );
 
   const { isRecording, startRecording, stopRecording } = useAudioRecording({
     onTranscriptionComplete: async (text) => {
       setTranscription(text);
       setResponse(text);
-      await captureAndAnalyze();
+      await captureAndAnalyze(text); // Pass the transcription directly
     },
     onError: (error) => {
       console.error('Transcription error:', error);
@@ -42,7 +45,7 @@ export default function Home() {
 
   useEffect(() => {
     if (isGuideRunning) {
-      guideIntervalRef.current = setInterval(captureAndAnalyze, 5000);
+      guideIntervalRef.current = setInterval(captureAndAnalyze, 2000);
     }
 
     return () => {
@@ -84,6 +87,10 @@ export default function Home() {
 
   const handleRecordToggle = async () => {
     if (!isRecording) {
+      if (isProcessing || isCurrentlySpeaking()) {
+        announceMessage('Please wait for the current response to finish');
+        return;
+      }
       try {
         announceMessage('Recording has started');
         setResponse('Listening...');
@@ -138,6 +145,7 @@ export default function Home() {
               mode={mode as 'query' | 'guide'}
               isRecording={isRecording}
               isGuideRunning={isGuideRunning}
+              isProcessing={isProcessing}
               onBack={handleBack}
               onToggle={mode === 'query' ? handleRecordToggle : toggleGuide}
               instructions={mode === 'query' ? '' : undefined}
