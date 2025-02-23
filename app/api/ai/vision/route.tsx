@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createGroq, groq } from "@ai-sdk/groq";
+import { createGroq } from "@ai-sdk/groq";
 import { generateText } from "ai";
 import { z } from "zod";
 
@@ -87,7 +87,13 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     if (
-      error.responseBody &&
+      typeof error === "object" &&
+      error !== null &&
+      "responseBody" in error &&
+      typeof error.responseBody === "object" &&
+      error.responseBody !== null &&
+      "message" in error.responseBody &&
+      typeof error.responseBody.message === "string" &&
       error.responseBody.message.includes("Rate limit")
     ) {
       console.warn("Rate limit hit, switching API key");
