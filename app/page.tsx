@@ -34,7 +34,7 @@ export default function Home() {
   const { isRecording, startRecording, stopRecording } = useAudioRecording({
     onTranscriptionComplete: async (text) => {
       setTranscription(text);
-      setResponse(text);
+      //setResponse('');
 
       console.log('Transcription:', text);
       console.log('analyzing image');
