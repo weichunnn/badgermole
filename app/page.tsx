@@ -196,13 +196,10 @@ export default function Home() {
   };
 
   const handleRecordToggle = async () => {
+    stopSpeaking();
     if (!isRecording) {
-      if (isCurrentlySpeaking()) {
-        announceMessage('Please wait for the current response to finish');
-        return;
-      }
       try {
-        announceMessage('Recording has started');
+        announceMessage('Recording started');
         setResponse('Listening...');
         setTranscription('');
         await startRecording();
