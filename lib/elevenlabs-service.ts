@@ -16,7 +16,6 @@ const playAudioWithUserGesture = async (
     await audio.play();
   } catch (error) {
     if (error instanceof Error && error.name === 'NotAllowedError') {
-      // Create a user gesture requirement
       const playPromise = new Promise<void>((resolve) => {
         const handleUserGesture = async () => {
           try {
@@ -53,14 +52,11 @@ export const synthesizeSpeech = async (text: string): Promise<void> => {
       isSpeaking = true;
 
       const audioStream = await client.textToSpeech.convertAsStream(
-        process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || 'XfNU2rGpBa01ckF309OY', // nichalia schwartz
+        '1e9Gn3OQenGu4rjQ3Du1', // Niamh
         {
           text,
-          // Using Multilingual v2 for better emotional expression
-          model_id: 'eleven_flash_v2_5',
-          // Higher quality audio settings
+          model_id: 'eleven_turbo_v2_5',
           output_format: 'mp3_44100_128',
-          // Voice settings for a warmer, more natural sound
         }
       );
 
