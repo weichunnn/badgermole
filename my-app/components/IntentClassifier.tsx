@@ -102,6 +102,7 @@ export default function IntentClassifier({ mode = 'STANDBY' }: IntentClassifierP
           <p>Is Action: {result.isAction.toString()}</p>
           <p>Category: {result.category}</p>
           <p>Confidence: {(result.confidence * 100).toFixed(2)}%</p>
+          <p className="mt-2">Processed Response: {result.processedText}</p>
         </div>
       )}
     </div>

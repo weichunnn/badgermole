@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { CategoryProcessor } from '../../../components/categoryHandler';
 
 export async function POST(req: NextRequest) {
   try {
@@ -59,7 +60,19 @@ export async function POST(req: NextRequest) {
 
     // Parse the response as JSON
     const result = JSON.parse(message.content[0].text);
-    return NextResponse.json(result);
+    
+    // Pass the result through categoryHandler
+    const processor = new CategoryProcessor();
+    const finalResult = await processor.processCategory({
+      isAction: result.isAction,
+      input: userPrompt || sceneDescription,
+      imgDesc: sceneDescription
+    });
+    return NextResponse.json({
+      ...result,
+      processedText: finalResult.processedText
+    });
+
 
   } catch (error) {
     console.error('Classification error:', error);
