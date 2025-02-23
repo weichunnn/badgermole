@@ -19,7 +19,7 @@ export default function Home() {
   const [isGuideRunning, setIsGuideRunning] = useState(false);
   const guideIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [transcription, setTranscription] = useState<string>('');
-  const { response, setResponse, captureAndAnalyze, isProcessing } = useImageAnalysis(
+  const { response, setResponse, captureAndAnalyze } = useImageAnalysis(
     videoRef as React.RefObject<HTMLVideoElement>,
     transcription
   );
@@ -87,7 +87,7 @@ export default function Home() {
 
   const handleRecordToggle = async () => {
     if (!isRecording) {
-      if (isProcessing || isCurrentlySpeaking()) {
+      if (isCurrentlySpeaking()) {
         announceMessage('Please wait for the current response to finish');
         return;
       }
@@ -145,7 +145,6 @@ export default function Home() {
               mode={mode as 'query' | 'guide'}
               isRecording={isRecording}
               isGuideRunning={isGuideRunning}
-              isProcessing={isProcessing}
               onBack={handleBack}
               onToggle={mode === 'query' ? handleRecordToggle : toggleGuide}
               instructions={mode === 'query' ? '' : undefined}

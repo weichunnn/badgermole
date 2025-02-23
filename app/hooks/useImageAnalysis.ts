@@ -14,7 +14,6 @@ enum MODE {
 export function useImageAnalysis(videoRef: React.RefObject<HTMLVideoElement>, transcription: string = '') {
   const [response, setResponse] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
 
 
   async function captureAndAnalyze(currentTranscription?: string) {
@@ -24,7 +23,6 @@ export function useImageAnalysis(videoRef: React.RefObject<HTMLVideoElement>, tr
       return;
     }
 
-    setIsProcessing(true);
   
     const canvas = document.createElement('canvas');
     canvas.width = videoRef.current.videoWidth;
@@ -41,7 +39,7 @@ export function useImageAnalysis(videoRef: React.RefObject<HTMLVideoElement>, tr
           transcription: currentTranscription || transcription
         });
         
-        const response = await fetch('/api/ai/vision', {
+        const response = await fetch(!currentTranscription ? '/api/ai/vision' : '/api/ai/visionQuery', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -63,9 +61,7 @@ export function useImageAnalysis(videoRef: React.RefObject<HTMLVideoElement>, tr
         }
       } catch (err) {
         console.error('Error analyzing image:', err);
-      } finally {
-        setIsProcessing(false);
-      }
+      } 
     }
     return null;
   }
