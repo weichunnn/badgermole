@@ -139,9 +139,7 @@ export default function Home() {
   });
 
   useEffect(() => {
-    announceMessage(
-      "Welcome to BadgerMole. Click left button for query mode, right button for walk mode."
-    );
+    announceMessage("Hello there! Let's get started!!");
   }, []);
 
   useEffect(() => {
@@ -158,16 +156,14 @@ export default function Home() {
 
   const handleQueryMode = () => {
     setMode("query");
-    announceMessage(
-      "Query mode activated. Press record to ask your query about what you see."
-    );
-    setResponse("Press record to ask your query");
+    announceMessage("Query mode.");
+    setResponse("");
   };
 
   const startGuideMode = () => {
     setMode("guide");
     setIsGuideRunning(true);
-    announceMessage("Guide mode activated. I will describe your surroundings.");
+    announceMessage("Guide mode. I'll describe your surroundings.");
     captureAndAnalyze();
   };
 
@@ -216,7 +212,7 @@ export default function Home() {
     if (guideIntervalRef.current) {
       clearInterval(guideIntervalRef.current);
     }
-    announceMessage("Returned to home screen");
+    announceMessage("Home Screen");
   };
 
   return (

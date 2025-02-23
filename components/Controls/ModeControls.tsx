@@ -23,6 +23,14 @@ export function ModeControls({
 }: ModeControlsProps) {
   return (
     <div className="flex flex-col gap-4 mx-auto w-full">
+      {/*{mode === 'guide' && (
+        <div className="mx-auto w-full">
+          <elevenlabs-convai
+            agent-id="UxsgpVJHVXtTODvoSeZU"
+            className="w-full"
+          />
+        </div>
+      )}*/}
       {instructions && (
         <div className="text-center text-gray-300 text-lg font-medium px-2">
           {instructions}
