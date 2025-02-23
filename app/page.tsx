@@ -9,12 +9,10 @@ import { useCamera } from "@/app/hooks/useCamera";
 import { useImageAnalysis } from "@/app/hooks/useImageAnalysis";
 import { Mode } from "./types";
 import { useAudioRecording } from "./hooks/useAudioRecording";
+import { isCurrentlySpeaking } from "@/lib/elevenlabs-service";
 
 export default function Home() {
   const { videoRef, canvasRef, announceMessage } = useCamera();
-  const { response, setResponse, captureAndAnalyze } = useImageAnalysis(
-    videoRef as React.RefObject<HTMLVideoElement>
-  );
 
   const [mode, setMode] = useState<Mode>("home");
   const [isGuideRunning, setIsGuideRunning] = useState(false);
@@ -28,6 +26,10 @@ export default function Home() {
   }
 
   const [currentLocation, setCurrentLocation] = useState<string>("");
+  const { response, setResponse, captureAndAnalyze } = useImageAnalysis(
+    videoRef as React.RefObject<HTMLVideoElement>,
+    transcription
+  );
 
   const { isRecording, startRecording, stopRecording } = useAudioRecording({
     onTranscriptionComplete: async (text) => {
@@ -144,7 +146,7 @@ export default function Home() {
 
   useEffect(() => {
     if (isGuideRunning) {
-      guideIntervalRef.current = setInterval(captureAndAnalyze, 5000);
+      guideIntervalRef.current = setInterval(captureAndAnalyze, 2000);
     }
 
     return () => {
@@ -184,6 +186,10 @@ export default function Home() {
 
   const handleRecordToggle = async () => {
     if (!isRecording) {
+      if (isCurrentlySpeaking()) {
+        announceMessage("Please wait for the current response to finish");
+        return;
+      }
       try {
         announceMessage("Recording has started");
         setResponse("Listening...");

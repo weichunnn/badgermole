@@ -6,10 +6,11 @@ interface ModeControlsProps {
   mode: 'query' | 'guide';
   isRecording: boolean;
   isGuideRunning: boolean;
+  isProcessing?: boolean;  // Add this prop
   onBack: () => void;
   onToggle: () => void;
   instructions?: string;
-  transcription?: string; // Add this prop
+  transcription?: string;
 }
 
 export function ModeControls({
