@@ -9,7 +9,7 @@ import { useCamera } from '@/app/hooks/useCamera';
 import { useImageAnalysis } from '@/app/hooks/useImageAnalysis';
 import { Mode } from './types';
 import { useAudioRecording } from './hooks/useAudioRecording';
-import { isCurrentlySpeaking, stopSpeaking } from '@/lib/elevenlabs-service';
+import { stopSpeaking } from '@/lib/elevenlabs-service';
 
 export default function Home() {
   const { videoRef, canvasRef, announceMessage } = useCamera();
