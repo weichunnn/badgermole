@@ -4,7 +4,6 @@ import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
 
-// Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
