@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
     // Try to extract JSON from the response if it's not already valid JSON
     let jsonText = text.trim();
-    const jsonMatch = jsonText.match(/\{.*\}/s);
+    const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       jsonText = jsonMatch[0];
     }
