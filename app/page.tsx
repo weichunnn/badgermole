@@ -9,8 +9,7 @@ import { useCamera } from '@/app/hooks/useCamera';
 import { useImageAnalysis } from '@/app/hooks/useImageAnalysis';
 import { Mode } from './types';
 import { useAudioRecording } from './hooks/useAudioRecording';
-import { isCurrentlySpeaking } from '@/lib/elevenlabs-service'; // Add this import
-
+import { stopSpeaking } from '@/lib/elevenlabs-service';
 
 export default function Home() {
   const { videoRef, canvasRef, announceMessage } = useCamera();
@@ -19,6 +18,14 @@ export default function Home() {
   const [isGuideRunning, setIsGuideRunning] = useState(false);
   const guideIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [transcription, setTranscription] = useState<string>('');
+
+  //enum IntentResponse {
+  //  Describe = 'Describe',
+  //  Navigate = 'Navigate',
+  //  Search = 'Search',
+  //}
+
+  //const [currentLocation, setCurrentLocation] = useState<string>('');
   const { response, setResponse, captureAndAnalyze } = useImageAnalysis(
     videoRef as React.RefObject<HTMLVideoElement>,
     transcription
@@ -27,8 +34,110 @@ export default function Home() {
   const { isRecording, startRecording, stopRecording } = useAudioRecording({
     onTranscriptionComplete: async (text) => {
       setTranscription(text);
-      setResponse(text);
-      await captureAndAnalyze(text); // Pass the transcription directly
+      //setResponse('');
+
+      console.log('Transcription:', text);
+      console.log('analyzing image');
+      captureAndAnalyze(text);
+
+      //try {
+      //  const intResp = await fetch('/api/classify_intent', {
+      //    method: 'POST',
+      //    headers: {
+      //      'Content-Type': 'application/json',
+      //    },
+      //    body: JSON.stringify({ inputPrompt: text }), // Changed from text to inputPrompt
+      //  });
+      //  if (!intResp.ok) {
+      //    throw new Error('Failed to process intent');
+      //  }
+      //  const intRespFinal = await intResp.json();
+
+      //  console.log('Intent response:', intRespFinal);
+
+      //  switch (intRespFinal.category) {
+      //    case IntentResponse.Describe:
+      //      announceMessage(
+      //        'Processing your request to describe the surroundings'
+      //      );
+      //      const describeResponse = await captureAndAnalyze();
+      //      announceMessage(describeResponse);
+      //      break;
+
+      //    case IntentResponse.Navigate:
+      //      announceMessage('Finding navigation directions');
+      //      const address = null;
+      //      // if ("geolocation" in navigator) {
+      //      //   navigator.geolocation.getCurrentPosition(
+      //      //     async (position) => {
+      //      //       try {
+      //      //         const response = await fetch(`/api/reverse_geocode`, {
+      //      //           method: "POST",
+      //      //           headers: {
+      //      //             "Content-Type": "application/json",
+      //      //           },
+      //      //           body: JSON.stringify({
+      //      //             lat: position.coords.latitude,
+      //      //             lng: position.coords.longitude,
+      //      //           }),
+      //      //         });
+      //      //         address = await response.json();
+      //      //       } catch (error) {
+      //      //         console.error("Error getting street address:", error);
+      //      //       }
+      //      //     },
+      //      //     (error) => {
+      //      //       console.error("Error getting location:", error);
+      //      //     }
+      //      //   );
+      //      // }
+      //      const navResp = await fetch('/api/ai/maps', {
+      //        method: 'POST',
+      //        headers: {
+      //          'Content-Type': 'application/json',
+      //        },
+      //        body: JSON.stringify({
+      //          origin: '55 2nd Street, San Francisco, CA 94105',
+      //          destination: '425 Mission Street, San Francisco, CA 94105', // Salesforce Transit Center
+      //          transitType: 'DRIVE',
+      //        }),
+      //      });
+      //      const navigationData = await navResp.json();
+      //      announceMessage('Navigation route found');
+
+      //      announceMessage(navigationData.directions);
+      //      break;
+
+      //    case IntentResponse.Search:
+      //      announceMessage('Searching for your request');
+
+      //      const searchResp = await fetch('/api/ai/search', {
+      //        method: 'POST',
+      //        headers: {
+      //          'Content-Type': 'appli cation/json',
+      //        },
+      //        body: JSON.stringify({
+      //          query: text,
+      //          image: image,
+      //        }),
+      //      });
+      //      console.log('Search response:', searchResp);
+      //      const searchData = await searchResp.json();
+      //      console.log('Search data:', searchData.answer);
+
+      //      announceMessage('search data found');
+      //      announceMessage(searchData.answer);
+
+      //      break;
+
+      //    default:
+      //      announceMessage('Intent not recognized. Please try again.');
+      //      break;
+      //  }
+      //} catch (error) {
+      //  console.error('Intent processing error:', error);
+      //  announceMessage('Error processing your request. Please try again.');
+      //}
     },
     onError: (error) => {
       console.error('Transcription error:', error);
@@ -54,19 +163,24 @@ export default function Home() {
   }, [isGuideRunning, captureAndAnalyze]);
 
   const handleQueryMode = () => {
+    stopSpeaking();
     setMode('query');
     announceMessage('Query mode.');
     setResponse('');
   };
 
   const startGuideMode = () => {
+    stopSpeaking();
+
     setMode('guide');
     setIsGuideRunning(true);
-    announceMessage("Guide mode. I'll describe your surroundings.");
+    announceMessage('Guide mode. Start walking.');
     captureAndAnalyze();
   };
 
   const toggleGuide = () => {
+    stopSpeaking();
+
     setIsGuideRunning(!isGuideRunning);
     if (isGuideRunning) {
       announceMessage('Guide paused. Click again to resume.');
@@ -82,13 +196,10 @@ export default function Home() {
   };
 
   const handleRecordToggle = async () => {
+    stopSpeaking();
     if (!isRecording) {
-      if (isCurrentlySpeaking()) {
-        announceMessage('Please wait for the current response to finish');
-        return;
-      }
       try {
-        announceMessage('Recording has started');
+        announceMessage('Recording started');
         setResponse('Listening...');
         setTranscription('');
         await startRecording();
@@ -105,6 +216,8 @@ export default function Home() {
   };
 
   const handleBack = () => {
+    stopSpeaking();
+
     if (isRecording) {
       stopRecording();
     }

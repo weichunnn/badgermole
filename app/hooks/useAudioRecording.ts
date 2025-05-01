@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface UseAudioRecordingProps {
   onTranscriptionComplete: (text: string) => void;
@@ -19,8 +19,27 @@ export const useAudioRecording = ({
   const recorderRef = useRef<AudioWorkletNode | null>(null);
   const audioChunksRef = useRef<Float32Array[]>([]);
 
+  const cleanup = () => {
+    if (recorderRef.current) {
+      recorderRef.current.disconnect();
+      recorderRef.current = null;
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    audioChunksRef.current = [];
+  };
+
   const startRecording = async () => {
     try {
+      // Ensure clean slate before starting
+      cleanup();
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
 
@@ -45,6 +64,7 @@ export const useAudioRecording = ({
 
       setIsRecording(true);
     } catch (error) {
+      cleanup(); // Clean up on error
       console.error('Recording initialization error:', error);
       onError('Error accessing microphone. Please check permissions.');
     }
@@ -53,24 +73,22 @@ export const useAudioRecording = ({
   const stopRecording = async () => {
     if (!audioContextRef.current || !recorderRef.current) return;
 
-    // Stop recording
-    recorderRef.current.disconnect();
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-    }
-
-    // Convert audio data to WAV format
-    const audioData = concatenateAudioData(audioChunksRef.current);
-    const wavBlob = createWavBlob(
-      audioData,
-      audioContextRef.current.sampleRate
-    );
-
-    // Create form data and send to server
-    const formData = new FormData();
-    formData.append('file', wavBlob, 'audio.wav');
-
     try {
+      // Process existing audio data
+      const audioData = concatenateAudioData(audioChunksRef.current);
+      const wavBlob = createWavBlob(
+        audioData,
+        audioContextRef.current.sampleRate
+      );
+
+      // Clean up before sending data
+      cleanup();
+      setIsRecording(false);
+
+      // Send data to server
+      const formData = new FormData();
+      formData.append('file', wavBlob, 'audio.wav');
+
       const response = await fetch('/api/transcribe', {
         method: 'POST',
         body: formData,
@@ -86,10 +104,6 @@ export const useAudioRecording = ({
       console.error('Transcription error:', error);
       onError('Failed to transcribe audio. Please try again.');
     }
-
-    // Clean up
-    audioChunksRef.current = [];
-    setIsRecording(false);
   };
 
   // Helper function to concatenate audio chunks
@@ -141,6 +155,13 @@ export const useAudioRecording = ({
       view.setUint8(offset + i, string.charCodeAt(i));
     }
   };
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, []);
 
   return {
     isRecording,

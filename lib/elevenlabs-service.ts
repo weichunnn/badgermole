@@ -6,12 +6,24 @@ const client = new ElevenLabsClient({
 
 let isSpeaking = false;
 let currentSpeechPromise: Promise<void> | null = null;
+let currentAudio: HTMLAudioElement | null = null;
 
 export const isCurrentlySpeaking = (): boolean => isSpeaking;
+
+export const stopSpeaking = () => {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
+  isSpeaking = false;
+  currentSpeechPromise = null;
+};
 
 const playAudioWithUserGesture = async (
   audio: HTMLAudioElement
 ): Promise<void> => {
+  currentAudio = audio; // Store reference to current audio
   try {
     await audio.play();
   } catch (error) {
