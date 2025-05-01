@@ -34,7 +34,7 @@ export function useImageAnalysis(
     console.log('adsfasfasdfsd');
     if (ctx) {
       ctx.drawImage(videoRef.current, 0, 0);
-      const imageData = canvas.toDataURL('image/jpeg');
+      const imageData = canvas.toDataURL('image/jpeg', 0.5);
 
       try {
         // Add logging to debug the request
