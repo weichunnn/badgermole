@@ -4,7 +4,7 @@ import { generateText } from 'ai';
 import { z } from 'zod';
 
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
-const model = groq('llama-3.2-90b-vision-preview');
+const model = groq(process.env.VISION_MODEL);
 
 const WALKING_PROMPT = `Analyze the image for hazards. Return JSON in this format:
 {
