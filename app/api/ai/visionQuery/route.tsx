@@ -4,7 +4,7 @@ import { createPerplexity } from '@ai-sdk/perplexity';
 import { generateText } from 'ai';
 
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
-const model = groq('llama-3.2-90b-vision-preview');
+const model = groq(process.env.VISION_MODEL);
 
 const perplexity = createPerplexity();
 const perplexityModel = perplexity('sonar-pro');
