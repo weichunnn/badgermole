@@ -3,13 +3,8 @@ import { createGroq } from "@ai-sdk/groq";
 import { generateText } from "ai";
 import { z } from "zod";
 
-<<<<<<< HEAD
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
-const model = groq(process.env.VISION_MODEL);
-=======
 const apiKeys = [process.env.GROQ_API_KEY, process.env.GROQ_API_KEY_2];
 let currentApiKeyIndex = 0;
->>>>>>> 9a61c2acb1f4db3dcb031fb29ea7dc2187d81bed
 
 function getCurrentApiKey() {
   return apiKeys[currentApiKeyIndex];
