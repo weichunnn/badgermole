@@ -64,10 +64,10 @@ export const synthesizeSpeech = async (text: string): Promise<void> => {
       isSpeaking = true;
 
       const audioStream = await client.textToSpeech.convertAsStream(
-        '1e9Gn3OQenGu4rjQ3Du1', // Niamh
+        '9BWtsMINqrJLrRacOk9x', // Niamh
         {
           text,
-          model_id: 'eleven_turbo_v2_5',
+          model_id: 'eleven_flash_v2_5',
           output_format: 'mp3_44100_128',
         }
       );
